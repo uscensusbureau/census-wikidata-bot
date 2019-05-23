@@ -3,3 +3,4 @@ simplejson
 requests
 mwparserfromhell
 nose
+pydash
