@@ -13,6 +13,9 @@ def get_census_values(api_url, get_var, for_var, *in_vars):
     try:
         payload = {'get': get_var, 'for': for_var, 'in': in_vars}
         r = requests.get(api_url, params=payload)
+        req = requests.Request("GET", api_url, params=payload)
+        prep = req.prepare()
+        print(prep.url)
         return r.json()
     except requests.exceptions.RequestException as e:
         logging.error('General Exception: {}'.format(e))
