@@ -42,9 +42,8 @@ def parse_census_numbers(candidate):
         return candidate
 
 
-query_set = ["NAME","B01001_001E","B12007D_001E","B25070_001E","B25077_001E"]
 
-def cond_parse_reducer(keys_arr):
+def cond_parse_reducer(query_set, keys_arr):
     def reducer(acc, cur):
         obj = objects.clone(acc)
         if (cur[0] < len(query_set)):
@@ -56,12 +55,12 @@ def cond_parse_reducer(keys_arr):
 
 # takes array of arrays and returns a dict that uses the first nested arrays' vals as keys for the rest:
 # see actual result: https://api.census.gov/data/2017/acs/acs5?get=NAME,B01001_001E&for=state:*
-def create_census_json(arr):
+def create_census_json(query_set, arr):
     keys_arr = arr[0]
     vals_arr = arr[1:]
 
     result = list(map(lambda vals: 
-        reduce(cond_parse_reducer(keys_arr),
+        reduce(cond_parse_reducer(query_set, keys_arr),
             # enumerate returns each item in the iterable paired with it's index: [(0, val1), (1, val2), ...]
             enumerate(vals),
             {}
@@ -69,8 +68,11 @@ def create_census_json(arr):
         vals_arr))
     return result
 
+query_set = ["NAME","B01001_001E","B12007D_001E","B25070_001E","B25077_001E"]
+
 queue.put(get_census_values("https://api.census.gov/data/2017/acs/acs5", query_set, "block group:*", "state:01", "county:025"))
-prn(create_census_json(queue.get()))
+
+prn(create_census_json(query_set, queue.get()))
 
 # prn(list(map(lambda x: x, queue.get())))
 
